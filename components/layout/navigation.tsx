@@ -1,17 +1,20 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
-import { Menu, X, MapPin } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { Menu, X, MapPin, LogOut, User as UserIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ThemeToggle } from './theme-toggle';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { AuthModal } from '@/components/auth/auth-modal';
+import { createClient } from '@/lib/supabase/client';
+import type { User } from '@supabase/supabase-js';
 
 export function Navigation() {
   const [isOpen, setIsOpen] = useState(false);
-  const [authModalOpen, setAuthModalOpen] = useState(false);
-  const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+  const router = useRouter();
 
   const navItems = [
     { label: '도시', href: '/#cities' },
@@ -19,9 +22,31 @@ export function Navigation() {
     { label: '가이드', href: '#' },
   ];
 
-  const openAuthModal = (mode: 'login' | 'signup') => {
-    setAuthMode(mode);
-    setAuthModalOpen(true);
+  useEffect(() => {
+    const supabase = createClient();
+
+    // Get initial session
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      setUser(user);
+      setLoading(false);
+    });
+
+    // Listen for auth changes
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+      setLoading(false);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const handleLogout = async () => {
+    const supabase = createClient();
+    await supabase.auth.signOut();
+    router.push('/');
+    router.refresh();
   };
 
   return (
@@ -51,12 +76,31 @@ export function Navigation() {
         {/* Desktop Actions */}
         <div className="hidden md:flex items-center gap-4">
           <ThemeToggle />
-          <Button variant="ghost" size="sm" onClick={() => openAuthModal('login')}>
-            로그인
-          </Button>
-          <Button size="sm" onClick={() => openAuthModal('signup')}>
-            회원가입
-          </Button>
+          {!loading && (
+            <>
+              {user ? (
+                <>
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <UserIcon className="h-4 w-4" />
+                    <span>{user.email}</span>
+                  </div>
+                  <Button variant="ghost" size="sm" onClick={handleLogout}>
+                    <LogOut className="h-4 w-4 mr-2" />
+                    로그아웃
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Button variant="ghost" size="sm" asChild>
+                    <Link href="/login">로그인</Link>
+                  </Button>
+                  <Button size="sm" asChild>
+                    <Link href="/register">회원가입</Link>
+                  </Button>
+                </>
+              )}
+            </>
+          )}
         </div>
 
         {/* Mobile Menu */}
@@ -80,38 +124,54 @@ export function Navigation() {
                     {item.label}
                   </Link>
                 ))}
-                <div className="border-t pt-4 mt-4 space-y-2">
-                  <Button
-                    variant="ghost"
-                    className="w-full justify-start"
-                    onClick={() => {
-                      setIsOpen(false);
-                      openAuthModal('login');
-                    }}
-                  >
-                    로그인
-                  </Button>
-                  <Button
-                    className="w-full"
-                    onClick={() => {
-                      setIsOpen(false);
-                      openAuthModal('signup');
-                    }}
-                  >
-                    회원가입
-                  </Button>
-                </div>
+                {!loading && (
+                  <div className="border-t pt-4 mt-4 space-y-2">
+                    {user ? (
+                      <>
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground px-2 py-2">
+                          <UserIcon className="h-4 w-4" />
+                          <span>{user.email}</span>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          className="w-full justify-start"
+                          onClick={() => {
+                            setIsOpen(false);
+                            handleLogout();
+                          }}
+                        >
+                          <LogOut className="h-4 w-4 mr-2" />
+                          로그아웃
+                        </Button>
+                      </>
+                    ) : (
+                      <>
+                        <Button
+                          variant="ghost"
+                          className="w-full justify-start"
+                          asChild
+                        >
+                          <Link href="/login" onClick={() => setIsOpen(false)}>
+                            로그인
+                          </Link>
+                        </Button>
+                        <Button
+                          className="w-full"
+                          asChild
+                        >
+                          <Link href="/register" onClick={() => setIsOpen(false)}>
+                            회원가입
+                          </Link>
+                        </Button>
+                      </>
+                    )}
+                  </div>
+                )}
               </div>
             </SheetContent>
           </Sheet>
         </div>
       </div>
-
-      <AuthModal
-        isOpen={authModalOpen}
-        onClose={() => setAuthModalOpen(false)}
-        defaultMode={authMode}
-      />
     </nav>
   );
 }

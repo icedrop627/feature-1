@@ -7,7 +7,7 @@ export const mockCities: City[] = [
     name_en: 'Seoul',
     region: '수도권',
     citySize: 'large',
-    coverImage: 'https://images.unsplash.com/photo-1551034943-7c6933a51ef7?w=800&h=600&fit=crop',
+    coverImage: 'https://images.unsplash.com/photo-1517154421773-0529f29ea451',
     description: '대한민국의 수도이자 최대 도시. 무한한 기회와 다양한 문화가 공존하는 곳입니다.',
 
     overallRating: 4.7,
@@ -45,7 +45,7 @@ export const mockCities: City[] = [
     name_en: 'Busan',
     region: '경상',
     citySize: 'large',
-    coverImage: 'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=800&h=600&fit=crop',
+    coverImage: 'https://images.unsplash.com/photo-1519452635265-7b1fbfd1e4e0',
     description: '아름다운 해안선과 활기찬 문화가 어우러진 대한민국 제2의 도시입니다.',
 
     overallRating: 4.6,
@@ -83,7 +83,7 @@ export const mockCities: City[] = [
     name_en: 'Jeju',
     region: '제주',
     citySize: 'medium',
-    coverImage: 'https://images.unsplash.com/photo-1567925919066-cbeb8bc35fe7?w=800&h=600&fit=crop',
+    coverImage: 'https://images.unsplash.com/photo-1610375461246-83df859d849d',
     description: '청정 자연과 독특한 문화가 살아있는 섬. 디지털 노마드의 성지입니다.',
 
     overallRating: 4.8,
@@ -121,7 +121,7 @@ export const mockCities: City[] = [
     name_en: 'Gangneung',
     region: '강원',
     citySize: 'medium',
-    coverImage: 'https://images.unsplash.com/photo-1548919973-5cef591cdbc9?w=800&h=600&fit=crop',
+    coverImage: 'https://images.unsplash.com/photo-1559827260-dc66d52bef19',
     description: '커피의 도시이자 아름다운 동해바다를 끼고 있는 매력적인 도시입니다.',
 
     overallRating: 4.5,
@@ -159,7 +159,7 @@ export const mockCities: City[] = [
     name_en: 'Jeonju',
     region: '전라',
     citySize: 'medium',
-    coverImage: 'https://images.unsplash.com/photo-1555400038-63f5ba517a47?w=800&h=600&fit=crop',
+    coverImage: 'https://images.unsplash.com/photo-1534274988757-a28bf1a57c17',
     description: '한옥마을과 맛있는 음식으로 유명한 전통과 현대가 공존하는 도시입니다.',
 
     overallRating: 4.4,
@@ -197,7 +197,7 @@ export const mockCities: City[] = [
     name_en: 'Daejeon',
     region: '충청',
     citySize: 'large',
-    coverImage: 'https://images.unsplash.com/photo-1544731612-de7f96afe55f?w=800&h=600&fit=crop',
+    coverImage: 'https://images.unsplash.com/photo-1496568816309-51d7c20e3b21',
     description: '대한민국의 중심, 과학과 교육의 도시로 조용하고 살기 좋은 곳입니다.',
 
     overallRating: 4.3,
@@ -235,7 +235,7 @@ export const mockCities: City[] = [
     name_en: 'Chuncheon',
     region: '강원',
     citySize: 'medium',
-    coverImage: 'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?w=800&h=600&fit=crop',
+    coverImage: 'https://images.unsplash.com/photo-1611348586804-61bf6c080437',
     description: '아름다운 호수와 자연에 둘러싸인 평화로운 도시입니다.',
 
     overallRating: 4.2,
@@ -273,7 +273,7 @@ export const mockCities: City[] = [
     name_en: 'Gyeongju',
     region: '경상',
     citySize: 'small',
-    coverImage: 'https://images.unsplash.com/photo-1548939026-14740bac6b2f?w=800&h=600&fit=crop',
+    coverImage: 'https://images.unsplash.com/photo-1528360983277-13d401cdc186',
     description: '천년 고도의 역사와 문화가 살아 숨 쉬는 아름다운 도시입니다.',
 
     overallRating: 4.1,
@@ -311,7 +311,7 @@ export const mockCities: City[] = [
     name_en: 'Yeosu',
     region: '전라',
     citySize: 'medium',
-    coverImage: 'https://images.unsplash.com/photo-1506012787146-f92b2d7d6d96?w=800&h=600&fit=crop',
+    coverImage: 'https://images.unsplash.com/photo-1591604021695-0c69b7c05981',
     description: '아름다운 남해바다와 섬들이 어우러진 낭만적인 항구도시입니다.',
 
     overallRating: 4.4,
@@ -349,7 +349,7 @@ export const mockCities: City[] = [
     name_en: 'Sokcho',
     region: '강원',
     citySize: 'small',
-    coverImage: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop',
+    coverImage: 'https://images.unsplash.com/photo-1604357209793-fca5dca89f97',
     description: '설악산과 동해바다가 만나는 자연의 보고, 신선한 해산물의 도시입니다.',
 
     overallRating: 4.3,

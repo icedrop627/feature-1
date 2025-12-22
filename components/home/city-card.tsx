@@ -2,15 +2,9 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
-import Link from 'next/link';
-import { MapPin, DollarSign, Home, Coffee, Wifi } from 'lucide-react';
+import { MapPin, ThumbsUp, ThumbsDown, Calendar, DollarSign, MapPinned, Trees } from 'lucide-react';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { RatingDisplay } from '@/components/common/rating-display';
-import { WeatherBadge } from '@/components/common/weather-badge';
-import { AirQualityBadge } from '@/components/common/air-quality-badge';
-import { ReviewModal } from '@/components/review/review-modal';
 import type { City } from '@/lib/types';
 
 interface CityCardProps {
@@ -18,10 +12,46 @@ interface CityCardProps {
 }
 
 export function CityCard({ city }: CityCardProps) {
-  const [reviewModalOpen, setReviewModalOpen] = useState(false);
+  const [liked, setLiked] = useState(false);
+  const [disliked, setDisliked] = useState(false);
+  const [likeCount, setLikeCount] = useState(city.likes);
+  const [dislikeCount, setDislikeCount] = useState(city.dislikes);
+
+  const handleLike = () => {
+    if (liked) {
+      // 좋아요 비활성화
+      setLiked(false);
+      setLikeCount(likeCount - 1);
+    } else {
+      // 좋아요 활성화
+      setLiked(true);
+      setLikeCount(likeCount + 1);
+      // 싫어요가 활성화되어 있으면 비활성화
+      if (disliked) {
+        setDisliked(false);
+        setDislikeCount(dislikeCount - 1);
+      }
+    }
+  };
+
+  const handleDislike = () => {
+    if (disliked) {
+      // 싫어요 비활성화
+      setDisliked(false);
+      setDislikeCount(dislikeCount - 1);
+    } else {
+      // 싫어요 활성화
+      setDisliked(true);
+      setDislikeCount(dislikeCount + 1);
+      // 좋아요가 활성화되어 있으면 비활성화
+      if (liked) {
+        setLiked(false);
+        setLikeCount(likeCount - 1);
+      }
+    }
+  };
 
   return (
-    <>
     <Card className="group overflow-hidden transition-all hover:shadow-lg hover:scale-[1.02]">
       {/* Cover Image */}
       <div className="relative h-48 w-full overflow-hidden">
@@ -32,10 +62,6 @@ export function CityCard({ city }: CityCardProps) {
           className="object-cover transition-transform group-hover:scale-110"
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
         />
-        <div className="absolute top-3 right-3 flex gap-2">
-          <WeatherBadge weather={city.currentWeather} compact />
-          <AirQualityBadge airQuality={city.airQuality} compact />
-        </div>
       </div>
 
       <CardHeader className="pb-3">
@@ -47,60 +73,61 @@ export function CityCard({ city }: CityCardProps) {
             </div>
             <p className="text-sm text-muted-foreground">{city.name_en}</p>
           </div>
-          <RatingDisplay rating={city.overallRating} reviewCount={city.reviewCount} size="sm" />
         </div>
+        <p className="text-sm text-muted-foreground mt-2 line-clamp-2">
+          {city.description}
+        </p>
       </CardHeader>
 
-      <CardContent className="space-y-3 pb-4">
-        {/* Stats Grid */}
-        <div className="grid grid-cols-2 gap-2 text-sm">
-          <div className="flex items-center gap-1.5">
+      <CardContent className="space-y-2 pb-4">
+        {/* 필터 정보 Key-Value */}
+        <div className="space-y-1.5 text-sm">
+          <div className="flex items-center gap-2">
             <DollarSign className="h-4 w-4 text-muted-foreground" />
-            <span className="text-xs text-muted-foreground">월 생활비</span>
-            <span className="font-semibold">₩{(city.monthlyCost / 10000).toFixed(0)}만</span>
+            <span className="text-muted-foreground">예산:</span>
+            <span className="font-medium">{city.budget}</span>
           </div>
-          <div className="flex items-center gap-1.5">
-            <Home className="h-4 w-4 text-muted-foreground" />
-            <span className="text-xs text-muted-foreground">원룸</span>
-            <span className="font-semibold">₩{(city.roomRent / 10000).toFixed(0)}만</span>
+          <div className="flex items-center gap-2">
+            <MapPinned className="h-4 w-4 text-muted-foreground" />
+            <span className="text-muted-foreground">지역:</span>
+            <span className="font-medium">{city.region}</span>
           </div>
-          <div className="flex items-center gap-1.5">
-            <Coffee className="h-4 w-4 text-muted-foreground" />
-            <span className="text-xs text-muted-foreground">카페</span>
-            <span className="font-semibold">{city.cafeCount}곳</span>
+          <div className="flex items-center gap-2">
+            <Trees className="h-4 w-4 text-muted-foreground" />
+            <span className="text-muted-foreground">환경:</span>
+            <span className="font-medium">{city.environment.join(', ')}</span>
           </div>
-          <div className="flex items-center gap-1.5">
-            <Wifi className="h-4 w-4 text-muted-foreground" />
-            <span className="text-xs text-muted-foreground">인터넷</span>
-            <span className="font-semibold">{city.avgInternetSpeed}Mbps</span>
+          <div className="flex items-center gap-2">
+            <Calendar className="h-4 w-4 text-muted-foreground" />
+            <span className="text-muted-foreground">최고 계절:</span>
+            <span className="font-medium">{city.bestSeason.join(', ')}</span>
           </div>
-        </div>
-
-        {/* Tags */}
-        <div className="flex flex-wrap gap-1.5">
-          {city.tags.slice(0, 4).map((tag) => (
-            <Badge key={tag} variant="secondary" className="text-xs">
-              #{tag}
-            </Badge>
-          ))}
         </div>
       </CardContent>
 
       <CardFooter className="grid grid-cols-2 gap-2 pt-4 border-t">
-        <Button variant="outline" size="sm" asChild>
-          <Link href={`/cities/${city.id}`}>상세보기</Link>
+        {/* 좋아요 버튼 */}
+        <Button
+          variant={liked ? 'default' : 'outline'}
+          size="sm"
+          onClick={handleLike}
+          className={liked ? 'bg-red-500 hover:bg-red-600' : ''}
+        >
+          <ThumbsUp className="h-4 w-4 mr-2" />
+          <span>{likeCount}</span>
         </Button>
-        <Button size="sm" onClick={() => setReviewModalOpen(true)}>
-          평가하기
+
+        {/* 싫어요 버튼 */}
+        <Button
+          variant={disliked ? 'default' : 'outline'}
+          size="sm"
+          onClick={handleDislike}
+          className={disliked ? 'bg-blue-500 hover:bg-blue-600' : ''}
+        >
+          <ThumbsDown className="h-4 w-4 mr-2" />
+          <span>{dislikeCount}</span>
         </Button>
       </CardFooter>
     </Card>
-
-    <ReviewModal
-      isOpen={reviewModalOpen}
-      onClose={() => setReviewModalOpen(false)}
-      cityName={city.name_ko}
-    />
-    </>
   );
 }

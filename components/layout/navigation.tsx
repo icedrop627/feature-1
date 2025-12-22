@@ -16,11 +16,7 @@ export function Navigation() {
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
-  const navItems = [
-    { label: '도시', href: '/#cities' },
-    { label: '커뮤니티', href: '#' },
-    { label: '가이드', href: '#' },
-  ];
+  const navItems: { label: string; href: string }[] = [];
 
   useEffect(() => {
     const supabase = createClient();

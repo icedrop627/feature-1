@@ -10,44 +10,22 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
+import type { FilterState } from '@/lib/types';
 
 interface FilterSidebarProps {
-  onFilterChange?: (filters: any) => void;
+  onFilterChange: (filters: FilterState) => void;
 }
 
 export function FilterSidebar({ onFilterChange }: FilterSidebarProps) {
   const [searchQuery, setSearchQuery] = useState('');
+  const [budget, setBudget] = useState<'전체' | '100만원 이하' | '100~200만원' | '200만원 이상'>('전체');
   const [selectedRegions, setSelectedRegions] = useState<string[]>([]);
-  const [budget, setBudget] = useState<string>('all');
-  const [selectedCitySize, setSelectedCitySize] = useState<string[]>([]);
-  const [selectedWorkspace, setSelectedWorkspace] = useState<string[]>([]);
-  const [selectedClimate, setSelectedClimate] = useState<string[]>([]);
-  const [selectedLifestyle, setSelectedLifestyle] = useState<string[]>([]);
+  const [selectedEnvironment, setSelectedEnvironment] = useState<string[]>([]);
+  const [selectedSeasons, setSelectedSeasons] = useState<string[]>([]);
 
-  const regions = ['수도권', '강원', '충청', '전라', '경상', '제주'];
-  const citySizes = [
-    { id: 'large', label: '대도시 (100만+)' },
-    { id: 'medium', label: '중소도시 (10만-100만)' },
-    { id: 'small', label: '소도시 (<10만)' },
-  ];
-  const workspaceOptions = [
-    { id: 'manyCafes', label: '카페 많음 (100개+)' },
-    { id: 'coworking', label: '코워킹 스페이스 있음' },
-    { id: 'goodWifi', label: '공공 WiFi 우수' },
-    { id: '24hours', label: '24시간 카페 있음' },
-  ];
-  const climateOptions = [
-    { id: 'warm', label: '따뜻함 (15°C+)' },
-    { id: 'moderate', label: '온화함 (10-15°C)' },
-    { id: 'cool', label: '추움 (<10°C)' },
-    { id: 'goodAir', label: '공기질 좋음 (AQI<50)' },
-  ];
-  const lifestyleOptions = [
-    { id: 'vibrant', label: '활기찬' },
-    { id: 'quiet', label: '조용한' },
-    { id: 'nature', label: '자연 친화적' },
-    { id: 'cultural', label: '문화시설 많음' },
-  ];
+  const regions = ['수도권', '경상도', '전라도', '강원도', '제주도', '충청도'];
+  const environmentOptions = ['자연친화', '도심선호', '카페작업', '코워킹 필수'];
+  const seasonOptions = ['봄', '여름', '가을', '겨울'];
 
   const handleRegionToggle = (region: string) => {
     setSelectedRegions((prev) =>
@@ -55,50 +33,45 @@ export function FilterSidebar({ onFilterChange }: FilterSidebarProps) {
     );
   };
 
-  const handleCitySizeToggle = (size: string) => {
-    setSelectedCitySize((prev) =>
-      prev.includes(size) ? prev.filter((s) => s !== size) : [...prev, size]
+  const handleEnvironmentToggle = (env: string) => {
+    setSelectedEnvironment((prev) =>
+      prev.includes(env) ? prev.filter((e) => e !== env) : [...prev, env]
     );
   };
 
-  const handleWorkspaceToggle = (option: string) => {
-    setSelectedWorkspace((prev) =>
-      prev.includes(option) ? prev.filter((o) => o !== option) : [...prev, option]
-    );
-  };
-
-  const handleClimateToggle = (option: string) => {
-    setSelectedClimate((prev) =>
-      prev.includes(option) ? prev.filter((o) => o !== option) : [...prev, option]
-    );
-  };
-
-  const handleLifestyleToggle = (option: string) => {
-    setSelectedLifestyle((prev) =>
-      prev.includes(option) ? prev.filter((o) => o !== option) : [...prev, option]
+  const handleSeasonToggle = (season: string) => {
+    setSelectedSeasons((prev) =>
+      prev.includes(season) ? prev.filter((s) => s !== season) : [...prev, season]
     );
   };
 
   const handleReset = () => {
     setSearchQuery('');
+    setBudget('전체');
     setSelectedRegions([]);
-    setBudget('all');
-    setSelectedCitySize([]);
-    setSelectedWorkspace([]);
-    setSelectedClimate([]);
-    setSelectedLifestyle([]);
+    setSelectedEnvironment([]);
+    setSelectedSeasons([]);
   };
 
   const getActiveFilterCount = () => {
     let count = 0;
     if (searchQuery) count++;
+    if (budget !== '전체') count++;
     count += selectedRegions.length;
-    if (budget !== 'all') count++;
-    count += selectedCitySize.length;
-    count += selectedWorkspace.length;
-    count += selectedClimate.length;
-    count += selectedLifestyle.length;
+    count += selectedEnvironment.length;
+    count += selectedSeasons.length;
     return count;
+  };
+
+  const handleApplyFilters = () => {
+    const filters: FilterState = {
+      searchQuery,
+      budget,
+      regions: selectedRegions,
+      environment: selectedEnvironment,
+      bestSeason: selectedSeasons,
+    };
+    onFilterChange(filters);
   };
 
   const FilterContent = () => (
@@ -106,27 +79,69 @@ export function FilterSidebar({ onFilterChange }: FilterSidebarProps) {
       <div className="space-y-6 pb-6">
         {/* Search */}
         <div className="space-y-2">
-          <Label htmlFor="search">🔍 검색</Label>
+          <Label htmlFor="search">검색</Label>
           <Input
             id="search"
             placeholder="도시명 검색..."
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={(e) => {
+              setSearchQuery(e.target.value);
+              handleApplyFilters();
+            }}
           />
+        </div>
+
+        <Separator />
+
+        {/* Budget Filter */}
+        <div className="space-y-3">
+          <Label>예산</Label>
+          <RadioGroup value={budget} onValueChange={(value) => {
+            setBudget(value as typeof budget);
+            handleApplyFilters();
+          }}>
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="전체" id="budget-all" />
+              <Label htmlFor="budget-all" className="font-normal cursor-pointer">
+                전체
+              </Label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="100만원 이하" id="budget-under100" />
+              <Label htmlFor="budget-under100" className="font-normal cursor-pointer">
+                100만원 이하
+              </Label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="100~200만원" id="budget-100to200" />
+              <Label htmlFor="budget-100to200" className="font-normal cursor-pointer">
+                100~200만원
+              </Label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="200만원 이상" id="budget-over200" />
+              <Label htmlFor="budget-over200" className="font-normal cursor-pointer">
+                200만원 이상
+              </Label>
+            </div>
+          </RadioGroup>
         </div>
 
         <Separator />
 
         {/* Region Filter */}
         <div className="space-y-3">
-          <Label>📍 지역</Label>
+          <Label>지역</Label>
           <div className="grid grid-cols-2 gap-2">
             {regions.map((region) => (
               <div key={region} className="flex items-center space-x-2">
                 <Checkbox
                   id={`region-${region}`}
                   checked={selectedRegions.includes(region)}
-                  onCheckedChange={() => handleRegionToggle(region)}
+                  onCheckedChange={() => {
+                    handleRegionToggle(region);
+                    setTimeout(handleApplyFilters, 0);
+                  }}
                 />
                 <label
                   htmlFor={`region-${region}`}
@@ -141,129 +156,56 @@ export function FilterSidebar({ onFilterChange }: FilterSidebarProps) {
 
         <Separator />
 
-        {/* Budget Filter */}
+        {/* Environment Filter */}
         <div className="space-y-3">
-          <Label>💵 월 예산</Label>
-          <RadioGroup value={budget} onValueChange={setBudget}>
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="all" id="budget-all" />
-              <Label htmlFor="budget-all" className="font-normal cursor-pointer">
-                전체
-              </Label>
-            </div>
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="under100" id="budget-under100" />
-              <Label htmlFor="budget-under100" className="font-normal cursor-pointer">
-                ~100만원
-              </Label>
-            </div>
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="100to150" id="budget-100to150" />
-              <Label htmlFor="budget-100to150" className="font-normal cursor-pointer">
-                100-150만원
-              </Label>
-            </div>
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="150to200" id="budget-150to200" />
-              <Label htmlFor="budget-150to200" className="font-normal cursor-pointer">
-                150-200만원
-              </Label>
-            </div>
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="over200" id="budget-over200" />
-              <Label htmlFor="budget-over200" className="font-normal cursor-pointer">
-                200만원+
-              </Label>
-            </div>
-          </RadioGroup>
+          <Label>환경</Label>
+          <div className="space-y-2">
+            {environmentOptions.map((env) => (
+              <div key={env} className="flex items-center space-x-2">
+                <Checkbox
+                  id={`env-${env}`}
+                  checked={selectedEnvironment.includes(env)}
+                  onCheckedChange={() => {
+                    handleEnvironmentToggle(env);
+                    setTimeout(handleApplyFilters, 0);
+                  }}
+                />
+                <label
+                  htmlFor={`env-${env}`}
+                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                >
+                  {env}
+                </label>
+              </div>
+            ))}
+          </div>
         </div>
 
         <Separator />
 
-        {/* City Size Filter */}
+        {/* Best Season Filter */}
         <div className="space-y-3">
-          <Label>🏙️ 도시 규모</Label>
-          {citySizes.map((size) => (
-            <div key={size.id} className="flex items-center space-x-2">
-              <Checkbox
-                id={`size-${size.id}`}
-                checked={selectedCitySize.includes(size.id)}
-                onCheckedChange={() => handleCitySizeToggle(size.id)}
-              />
-              <label
-                htmlFor={`size-${size.id}`}
-                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
-              >
-                {size.label}
-              </label>
-            </div>
-          ))}
-        </div>
-
-        <Separator />
-
-        {/* Workspace Filter */}
-        <div className="space-y-3">
-          <Label>☕ 작업 환경</Label>
-          {workspaceOptions.map((option) => (
-            <div key={option.id} className="flex items-center space-x-2">
-              <Checkbox
-                id={`workspace-${option.id}`}
-                checked={selectedWorkspace.includes(option.id)}
-                onCheckedChange={() => handleWorkspaceToggle(option.id)}
-              />
-              <label
-                htmlFor={`workspace-${option.id}`}
-                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
-              >
-                {option.label}
-              </label>
-            </div>
-          ))}
-        </div>
-
-        <Separator />
-
-        {/* Climate Filter */}
-        <div className="space-y-3">
-          <Label>🌡️ 기후</Label>
-          {climateOptions.map((option) => (
-            <div key={option.id} className="flex items-center space-x-2">
-              <Checkbox
-                id={`climate-${option.id}`}
-                checked={selectedClimate.includes(option.id)}
-                onCheckedChange={() => handleClimateToggle(option.id)}
-              />
-              <label
-                htmlFor={`climate-${option.id}`}
-                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
-              >
-                {option.label}
-              </label>
-            </div>
-          ))}
-        </div>
-
-        <Separator />
-
-        {/* Lifestyle Filter */}
-        <div className="space-y-3">
-          <Label>🎨 라이프스타일</Label>
-          {lifestyleOptions.map((option) => (
-            <div key={option.id} className="flex items-center space-x-2">
-              <Checkbox
-                id={`lifestyle-${option.id}`}
-                checked={selectedLifestyle.includes(option.id)}
-                onCheckedChange={() => handleLifestyleToggle(option.id)}
-              />
-              <label
-                htmlFor={`lifestyle-${option.id}`}
-                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
-              >
-                {option.label}
-              </label>
-            </div>
-          ))}
+          <Label>최고 계절</Label>
+          <div className="grid grid-cols-2 gap-2">
+            {seasonOptions.map((season) => (
+              <div key={season} className="flex items-center space-x-2">
+                <Checkbox
+                  id={`season-${season}`}
+                  checked={selectedSeasons.includes(season)}
+                  onCheckedChange={() => {
+                    handleSeasonToggle(season);
+                    setTimeout(handleApplyFilters, 0);
+                  }}
+                />
+                <label
+                  htmlFor={`season-${season}`}
+                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                >
+                  {season}
+                </label>
+              </div>
+            ))}
+          </div>
         </div>
 
         <Separator />
@@ -271,10 +213,10 @@ export function FilterSidebar({ onFilterChange }: FilterSidebarProps) {
         {/* Action Buttons */}
         <div className="space-y-2 pt-4">
           <Button variant="outline" className="w-full" onClick={handleReset}>
-            🔄 필터 초기화
+            필터 초기화
           </Button>
-          <Button className="w-full">
-            ✓ 적용하기 ({getActiveFilterCount()}개 필터)
+          <Button className="w-full" onClick={handleApplyFilters}>
+            적용하기 ({getActiveFilterCount()}개 필터)
           </Button>
         </div>
       </div>

@@ -100,27 +100,27 @@ export function FilterSidebar({ onFilterChange }: FilterSidebarProps) {
             setBudget(value as typeof budget);
             handleApplyFilters();
           }}>
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-2 w-full">
               <RadioGroupItem value="전체" id="budget-all" />
-              <Label htmlFor="budget-all" className="font-normal cursor-pointer">
+              <Label htmlFor="budget-all" className="font-normal cursor-pointer flex-1">
                 전체
               </Label>
             </div>
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-2 w-full">
               <RadioGroupItem value="100만원 이하" id="budget-under100" />
-              <Label htmlFor="budget-under100" className="font-normal cursor-pointer">
+              <Label htmlFor="budget-under100" className="font-normal cursor-pointer flex-1">
                 100만원 이하
               </Label>
             </div>
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-2 w-full">
               <RadioGroupItem value="100~200만원" id="budget-100to200" />
-              <Label htmlFor="budget-100to200" className="font-normal cursor-pointer">
+              <Label htmlFor="budget-100to200" className="font-normal cursor-pointer flex-1">
                 100~200만원
               </Label>
             </div>
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-2 w-full">
               <RadioGroupItem value="200만원 이상" id="budget-over200" />
-              <Label htmlFor="budget-over200" className="font-normal cursor-pointer">
+              <Label htmlFor="budget-over200" className="font-normal cursor-pointer flex-1">
                 200만원 이상
               </Label>
             </div>
@@ -134,7 +134,7 @@ export function FilterSidebar({ onFilterChange }: FilterSidebarProps) {
           <Label>지역</Label>
           <div className="grid grid-cols-2 gap-2">
             {regions.map((region) => (
-              <div key={region} className="flex items-center space-x-2">
+              <div key={region} className="flex items-center space-x-2 w-full">
                 <Checkbox
                   id={`region-${region}`}
                   checked={selectedRegions.includes(region)}
@@ -145,7 +145,7 @@ export function FilterSidebar({ onFilterChange }: FilterSidebarProps) {
                 />
                 <label
                   htmlFor={`region-${region}`}
-                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer flex-1"
                 >
                   {region}
                 </label>
@@ -161,7 +161,7 @@ export function FilterSidebar({ onFilterChange }: FilterSidebarProps) {
           <Label>환경</Label>
           <div className="space-y-2">
             {environmentOptions.map((env) => (
-              <div key={env} className="flex items-center space-x-2">
+              <div key={env} className="flex items-center space-x-2 w-full">
                 <Checkbox
                   id={`env-${env}`}
                   checked={selectedEnvironment.includes(env)}
@@ -172,7 +172,7 @@ export function FilterSidebar({ onFilterChange }: FilterSidebarProps) {
                 />
                 <label
                   htmlFor={`env-${env}`}
-                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer flex-1"
                 >
                   {env}
                 </label>
@@ -188,7 +188,7 @@ export function FilterSidebar({ onFilterChange }: FilterSidebarProps) {
           <Label>최고 계절</Label>
           <div className="grid grid-cols-2 gap-2">
             {seasonOptions.map((season) => (
-              <div key={season} className="flex items-center space-x-2">
+              <div key={season} className="flex items-center space-x-2 w-full">
                 <Checkbox
                   id={`season-${season}`}
                   checked={selectedSeasons.includes(season)}
@@ -199,7 +199,7 @@ export function FilterSidebar({ onFilterChange }: FilterSidebarProps) {
                 />
                 <label
                   htmlFor={`season-${season}`}
-                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer flex-1"
                 >
                   {season}
                 </label>

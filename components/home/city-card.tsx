@@ -56,7 +56,7 @@ export function CityCard({ city }: CityCardProps) {
       {/* Cover Image */}
       <div className="relative h-48 w-full overflow-hidden">
         <Image
-          src={city.coverImage}
+          src={city.cover_image || 'https://images.unsplash.com/photo-1517154421773-0529f29ea451'}
           alt={city.name_ko}
           fill
           className="object-cover transition-transform group-hover:scale-110"
@@ -95,12 +95,12 @@ export function CityCard({ city }: CityCardProps) {
           <div className="flex items-center gap-2">
             <Trees className="h-4 w-4 text-muted-foreground" />
             <span className="text-muted-foreground">환경:</span>
-            <span className="font-medium">{city.environment.join(', ')}</span>
+            <span className="font-medium">{city.environment?.join(', ') || '-'}</span>
           </div>
           <div className="flex items-center gap-2">
             <Calendar className="h-4 w-4 text-muted-foreground" />
             <span className="text-muted-foreground">최고 계절:</span>
-            <span className="font-medium">{city.bestSeason.join(', ')}</span>
+            <span className="font-medium">{city.best_season?.join(', ') || '-'}</span>
           </div>
         </div>
       </CardContent>

@@ -1,39 +1,29 @@
-'use client';
-
-import { useState } from 'react';
 import { HeroSection } from '@/components/home/hero-section';
-import { CityGrid } from '@/components/home/city-grid';
-import { FilterSidebar } from '@/components/home/filter-sidebar';
-import { mockCities } from '@/lib/mock-data/cities';
-import type { FilterState } from '@/lib/types';
+import { CityGridWrapper } from '@/components/home/city-grid-wrapper';
+import { getCitiesServer } from '@/lib/api/cities';
 
-export default function Home() {
-  const [filters, setFilters] = useState<FilterState>({
-    searchQuery: '',
-    budget: '전체',
-    regions: [],
-    environment: [],
-    bestSeason: [],
-  });
+export default async function Home() {
+  // Fetch cities from Supabase
+  const { data: cities, error } = await getCitiesServer();
 
-  const handleFilterChange = (newFilters: FilterState) => {
-    setFilters(newFilters);
-  };
+  // Handle error or empty state
+  if (error) {
+    console.error('Failed to fetch cities:', error);
+  }
+
+  const citiesData = cities || [];
 
   // 통계 계산
-  const totalLikes = mockCities.reduce((sum, city) => sum + city.likes, 0);
-  const totalDislikes = mockCities.reduce((sum, city) => sum + city.dislikes, 0);
+  const totalLikes = citiesData.reduce((sum, city) => sum + city.likes, 0);
+  const totalDislikes = citiesData.reduce((sum, city) => sum + city.dislikes, 0);
 
   return (
     <>
       <HeroSection
-        totalCities={mockCities.length}
+        totalCities={citiesData.length}
         totalReviews={totalLikes + totalDislikes}
       />
-      <div className="flex">
-        <FilterSidebar onFilterChange={handleFilterChange} />
-        <CityGrid cities={mockCities} filters={filters} />
-      </div>
+      <CityGridWrapper initialCities={citiesData} />
     </>
   );
 }

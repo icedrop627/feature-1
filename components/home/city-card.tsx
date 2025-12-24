@@ -1,10 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { MapPin, ThumbsUp, ThumbsDown, Calendar, DollarSign, MapPinned, Trees } from 'lucide-react';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { createClient } from '@/lib/supabase/client';
 import type { City } from '@/lib/types';
 
 interface CityCardProps {
@@ -16,38 +17,111 @@ export function CityCard({ city }: CityCardProps) {
   const [disliked, setDisliked] = useState(false);
   const [likeCount, setLikeCount] = useState(city.likes);
   const [dislikeCount, setDislikeCount] = useState(city.dislikes);
+  const [isLoading, setIsLoading] = useState(false);
+  const supabase = createClient();
 
-  const handleLike = () => {
-    if (liked) {
-      // 좋아요 비활성화
-      setLiked(false);
-      setLikeCount(likeCount - 1);
-    } else {
-      // 좋아요 활성화
-      setLiked(true);
-      setLikeCount(likeCount + 1);
-      // 싫어요가 활성화되어 있으면 비활성화
+  useEffect(() => {
+    const channel = supabase
+      .channel(`city-${city.id}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'cities',
+          filter: `id=eq.${city.id}`,
+        },
+        (payload: any) => {
+          if (payload.new) {
+            setLikeCount(payload.new.likes);
+            setDislikeCount(payload.new.dislikes);
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [city.id, supabase]);
+
+  const handleLike = async () => {
+    if (isLoading) return;
+    setIsLoading(true);
+
+    try {
+      const newLiked = !liked;
+      const newLikeCount = newLiked ? likeCount + 1 : likeCount - 1;
+      const newDislikeCount = liked && disliked ? dislikeCount : disliked ? dislikeCount - 1 : dislikeCount;
+
+      setLiked(newLiked);
+      setLikeCount(newLikeCount);
       if (disliked) {
         setDisliked(false);
-        setDislikeCount(dislikeCount - 1);
+        setDislikeCount(newDislikeCount);
       }
+
+      const { error } = await supabase
+        .from('cities')
+        .update({
+          likes: newLikeCount,
+          dislikes: newDislikeCount,
+        })
+        .eq('id', city.id);
+
+      if (error) {
+        console.error('Error updating likes:', error);
+        setLiked(!newLiked);
+        setLikeCount(likeCount);
+        if (disliked !== (liked && disliked ? false : disliked ? false : disliked)) {
+          setDisliked(disliked);
+          setDislikeCount(dislikeCount);
+        }
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const handleDislike = () => {
-    if (disliked) {
-      // 싫어요 비활성화
-      setDisliked(false);
-      setDislikeCount(dislikeCount - 1);
-    } else {
-      // 싫어요 활성화
-      setDisliked(true);
-      setDislikeCount(dislikeCount + 1);
-      // 좋아요가 활성화되어 있으면 비활성화
+  const handleDislike = async () => {
+    if (isLoading) return;
+    setIsLoading(true);
+
+    try {
+      const newDisliked = !disliked;
+      const newDislikeCount = newDisliked ? dislikeCount + 1 : dislikeCount - 1;
+      const newLikeCount = disliked && liked ? likeCount : liked ? likeCount - 1 : likeCount;
+
+      setDisliked(newDisliked);
+      setDislikeCount(newDislikeCount);
       if (liked) {
         setLiked(false);
-        setLikeCount(likeCount - 1);
+        setLikeCount(newLikeCount);
       }
+
+      const { error } = await supabase
+        .from('cities')
+        .update({
+          likes: newLikeCount,
+          dislikes: newDislikeCount,
+        })
+        .eq('id', city.id);
+
+      if (error) {
+        console.error('Error updating dislikes:', error);
+        setDisliked(!newDisliked);
+        setDislikeCount(dislikeCount);
+        if (liked !== (disliked && liked ? false : liked ? false : liked)) {
+          setLiked(liked);
+          setLikeCount(likeCount);
+        }
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -111,6 +185,7 @@ export function CityCard({ city }: CityCardProps) {
           variant={liked ? 'default' : 'outline'}
           size="sm"
           onClick={handleLike}
+          disabled={isLoading}
           className={liked ? 'bg-red-500 hover:bg-red-600' : ''}
         >
           <ThumbsUp className="h-4 w-4 mr-2" />
@@ -122,6 +197,7 @@ export function CityCard({ city }: CityCardProps) {
           variant={disliked ? 'default' : 'outline'}
           size="sm"
           onClick={handleDislike}
+          disabled={isLoading}
           className={disliked ? 'bg-blue-500 hover:bg-blue-600' : ''}
         >
           <ThumbsDown className="h-4 w-4 mr-2" />

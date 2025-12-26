@@ -67,7 +67,7 @@ export default function LoginPage() {
           </div>
 
           {/* Login Form */}
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-4" role="form">
             <div className="space-y-2">
               <Label htmlFor="email">이메일</Label>
               <div className="relative">

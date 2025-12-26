@@ -58,7 +58,8 @@ export function FilterSidebar({ onFilterChange }: FilterSidebarProps) {
       bestSeason: selectedSeasons,
     };
     onFilterChange(filters);
-  }, [searchQuery, budget, selectedRegions, selectedEnvironment, selectedSeasons, onFilterChange]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchQuery, budget, selectedRegions, selectedEnvironment, selectedSeasons]);
 
   const handleReset = () => {
     setSearchQuery('');

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { X, SlidersHorizontal } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -27,23 +27,38 @@ export function FilterSidebar({ onFilterChange }: FilterSidebarProps) {
   const environmentOptions = ['자연친화', '도심선호', '카페작업', '코워킹 필수'];
   const seasonOptions = ['봄', '여름', '가을', '겨울'];
 
-  const handleRegionToggle = (region: string) => {
+  const handleRegionToggle = (region: string, checked: boolean | 'indeterminate') => {
+    if (checked === 'indeterminate') return;
     setSelectedRegions((prev) =>
-      prev.includes(region) ? prev.filter((r) => r !== region) : [...prev, region]
+      checked ? [...prev, region] : prev.filter((r) => r !== region)
     );
   };
 
-  const handleEnvironmentToggle = (env: string) => {
+  const handleEnvironmentToggle = (env: string, checked: boolean | 'indeterminate') => {
+    if (checked === 'indeterminate') return;
     setSelectedEnvironment((prev) =>
-      prev.includes(env) ? prev.filter((e) => e !== env) : [...prev, env]
+      checked ? [...prev, env] : prev.filter((e) => e !== env)
     );
   };
 
-  const handleSeasonToggle = (season: string) => {
+  const handleSeasonToggle = (season: string, checked: boolean | 'indeterminate') => {
+    if (checked === 'indeterminate') return;
     setSelectedSeasons((prev) =>
-      prev.includes(season) ? prev.filter((s) => s !== season) : [...prev, season]
+      checked ? [...prev, season] : prev.filter((s) => s !== season)
     );
   };
+
+  // Apply filters whenever any filter state changes
+  useEffect(() => {
+    const filters: FilterState = {
+      searchQuery,
+      budget,
+      regions: selectedRegions,
+      environment: selectedEnvironment,
+      bestSeason: selectedSeasons,
+    };
+    onFilterChange(filters);
+  }, [searchQuery, budget, selectedRegions, selectedEnvironment, selectedSeasons, onFilterChange]);
 
   const handleReset = () => {
     setSearchQuery('');
@@ -84,10 +99,7 @@ export function FilterSidebar({ onFilterChange }: FilterSidebarProps) {
             id="search"
             placeholder="도시명 검색..."
             value={searchQuery}
-            onChange={(e) => {
-              setSearchQuery(e.target.value);
-              handleApplyFilters();
-            }}
+            onChange={(e) => setSearchQuery(e.target.value)}
           />
         </div>
 
@@ -96,10 +108,7 @@ export function FilterSidebar({ onFilterChange }: FilterSidebarProps) {
         {/* Budget Filter */}
         <div className="space-y-3">
           <Label>예산</Label>
-          <RadioGroup value={budget} onValueChange={(value) => {
-            setBudget(value as typeof budget);
-            handleApplyFilters();
-          }}>
+          <RadioGroup value={budget} onValueChange={(value) => setBudget(value as typeof budget)}>
             <div className="flex items-center space-x-2 w-full">
               <RadioGroupItem value="전체" id="budget-all" />
               <Label htmlFor="budget-all" className="font-normal cursor-pointer flex-1">
@@ -137,18 +146,16 @@ export function FilterSidebar({ onFilterChange }: FilterSidebarProps) {
               <div key={region} className="flex items-center space-x-2 w-full">
                 <Checkbox
                   id={`region-${region}`}
+                  aria-label={region}
                   checked={selectedRegions.includes(region)}
-                  onCheckedChange={() => {
-                    handleRegionToggle(region);
-                    setTimeout(handleApplyFilters, 0);
-                  }}
+                  onCheckedChange={(checked) => handleRegionToggle(region, checked)}
                 />
-                <label
+                <Label
                   htmlFor={`region-${region}`}
-                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer flex-1"
+                  className="font-normal cursor-pointer flex-1"
                 >
                   {region}
-                </label>
+                </Label>
               </div>
             ))}
           </div>
@@ -164,18 +171,16 @@ export function FilterSidebar({ onFilterChange }: FilterSidebarProps) {
               <div key={env} className="flex items-center space-x-2 w-full">
                 <Checkbox
                   id={`env-${env}`}
+                  aria-label={env}
                   checked={selectedEnvironment.includes(env)}
-                  onCheckedChange={() => {
-                    handleEnvironmentToggle(env);
-                    setTimeout(handleApplyFilters, 0);
-                  }}
+                  onCheckedChange={(checked) => handleEnvironmentToggle(env, checked)}
                 />
-                <label
+                <Label
                   htmlFor={`env-${env}`}
-                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer flex-1"
+                  className="font-normal cursor-pointer flex-1"
                 >
                   {env}
-                </label>
+                </Label>
               </div>
             ))}
           </div>
@@ -191,18 +196,16 @@ export function FilterSidebar({ onFilterChange }: FilterSidebarProps) {
               <div key={season} className="flex items-center space-x-2 w-full">
                 <Checkbox
                   id={`season-${season}`}
+                  aria-label={season}
                   checked={selectedSeasons.includes(season)}
-                  onCheckedChange={() => {
-                    handleSeasonToggle(season);
-                    setTimeout(handleApplyFilters, 0);
-                  }}
+                  onCheckedChange={(checked) => handleSeasonToggle(season, checked)}
                 />
-                <label
+                <Label
                   htmlFor={`season-${season}`}
-                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer flex-1"
+                  className="font-normal cursor-pointer flex-1"
                 >
                   {season}
-                </label>
+                </Label>
               </div>
             ))}
           </div>

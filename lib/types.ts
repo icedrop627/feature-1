@@ -1,20 +1,16 @@
-// 도시 데이터
-export interface City {
-  id: string;
-  name_ko: string; // 한글 이름
-  name_en: string; // 영문 이름
-  description: string; // 도시 설명
-  coverImage: string; // 대표 이미지 URL
-  monthlyCost: number; // 월 평균 생활비 (원)
+import { Database } from './database.types';
 
-  likes: number; // 좋아요 수
-  dislikes: number; // 싫어요 수
+// 도시 데이터 (Supabase DB 타입 기반)
+export type City = Database['public']['Tables']['cities']['Row'];
 
-  budget: '100만원 이하' | '100~200만원' | '200만원 이상';
-  region: '수도권' | '경상도' | '전라도' | '강원도' | '제주도' | '충청도';
-  environment: ('자연친화' | '도심선호' | '카페작업' | '코워킹 필수')[];
-  bestSeason: ('봄' | '여름' | '가을' | '겨울')[];
-}
+// 프로필 데이터
+export type Profile = Database['public']['Tables']['profiles']['Row'];
+
+// 리뷰 데이터
+export type Review = Database['public']['Tables']['reviews']['Row'];
+
+// 도시 반응 데이터
+export type CityReaction = Database['public']['Tables']['city_reactions']['Row'];
 
 // 필터 상태
 export interface FilterState {

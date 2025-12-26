@@ -28,10 +28,31 @@ export async function middleware(request: NextRequest) {
   // supabase.auth.getClaims(). A simple mistake could make it very hard to debug
   // issues with users being randomly logged out.
 
-  const { data } = await supabase.auth.getClaims();
+  // Check authentication status
+  const { data: { user } } = await supabase.auth.getUser();
 
-  // getClaims() will return null if the user is not authenticated
-  // This is expected behavior for public pages
+  // Protected routes that require authentication
+  const protectedRoutes = ['/profile', '/settings'];
+  const isProtectedRoute = protectedRoutes.some(route =>
+    request.nextUrl.pathname.startsWith(route)
+  );
+
+  // Redirect to login if accessing protected route without authentication
+  if (isProtectedRoute && !user) {
+    const redirectUrl = new URL('/login', request.url);
+    redirectUrl.searchParams.set('redirectTo', request.nextUrl.pathname);
+    return NextResponse.redirect(redirectUrl);
+  }
+
+  // Redirect to home if accessing auth pages while authenticated
+  const authRoutes = ['/login', '/register'];
+  const isAuthRoute = authRoutes.some(route =>
+    request.nextUrl.pathname.startsWith(route)
+  );
+
+  if (isAuthRoute && user) {
+    return NextResponse.redirect(new URL('/', request.url));
+  }
 
   // IMPORTANT: You *must* return the supabaseResponse object as it is. If you're
   // creating a new response object with NextResponse.next() make sure to:

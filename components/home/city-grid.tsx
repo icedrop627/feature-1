@@ -33,20 +33,20 @@ export function CityGrid({ cities, filters }: CityGridProps) {
 
     // 지역 필터
     if (filters.regions.length > 0) {
-      result = result.filter((city) => filters.regions.includes(city.region));
+      result = result.filter((city) => city.region && filters.regions.includes(city.region));
     }
 
     // 환경 필터 (OR 조건: 선택된 환경 중 하나라도 포함)
     if (filters.environment.length > 0) {
       result = result.filter((city) =>
-        city.environment.some((env) => filters.environment.includes(env))
+        city.environment?.some((env) => filters.environment.includes(env))
       );
     }
 
     // 최고 계절 필터 (OR 조건: 선택된 계절 중 하나라도 포함)
     if (filters.bestSeason.length > 0) {
       result = result.filter((city) =>
-        city.bestSeason.some((season) => filters.bestSeason.includes(season))
+        city.best_season?.some((season) => filters.bestSeason.includes(season))
       );
     }
 
@@ -56,9 +56,9 @@ export function CityGrid({ cities, filters }: CityGridProps) {
         case 'likes':
           return b.likes - a.likes;
         case 'cost_low':
-          return a.monthlyCost - b.monthlyCost;
+          return (a.monthly_cost || 0) - (b.monthly_cost || 0);
         case 'cost_high':
-          return b.monthlyCost - a.monthlyCost;
+          return (b.monthly_cost || 0) - (a.monthly_cost || 0);
         default:
           return 0;
       }
